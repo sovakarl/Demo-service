@@ -1,9 +1,0 @@
-DROP ROLE IF EXISTS role_reader;
-CREATE ROLE role_reader;
-
-GRANT CONNECT ON DATABASE demo_service_db TO role_reader
-GRANT USAGE ON SCHEMA api TO role_reader;
-GRANT SELECT ON ALL TABLES IN SCHEMA api TO role_reader;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA api 
-GRANT SELECT ON TABLES TO role_reader;
