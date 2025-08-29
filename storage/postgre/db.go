@@ -2,23 +2,22 @@ package postgre
 
 import "github.com/jackc/pgx"
 
-func Connect(cnf Config) (*DBManager, error) {
-	pools := make(map[string]*pgx.ConnPool)
-	
-	return  &DBManager{pools: pools}, nil
+
+func Connect(cnf Config) (*pgx.ConnPool, error) {
+	conConfig := pgx.ConnConfig{Host: cnf.Host,
+		Port:     cnf.Port,
+		Database: cnf.DbName,
+		Password: cnf.Password,
+		User:     cnf.User,
+	}
+
+	poolConfig := pgx.ConnPoolConfig{ConnConfig: conConfig}
+
+	pool, err := pgx.NewConnPool(poolConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return pool, nil
 }
 
-// func createUserPool(cnf userConfig) (*pgx.ConnPool, error) {
-// 	conConf := pgx.ConnConfig{Host: cnf.host,
-// 		Port:     cnf.port,
-// 		Database: cnf.dbName,
-// 		User:     cnf.user,
-// 		Password: cnf.password,
-// 	}
-// 	conPoolConf := pgx.ConnPoolConfig{ConnConfig: conConf, MaxConnections: 15}
-// 	readerPool, err := pgx.NewConnPool(conPoolConf)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return readerPool, nil
-// }
