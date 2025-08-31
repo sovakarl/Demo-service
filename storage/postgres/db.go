@@ -1,9 +1,16 @@
-package postgre
+package postgres
 
 import "github.com/jackc/pgx"
 
+type Db struct {
+	connPool *pgx.ConnPool
+}
 
-func Connect(cnf Config) (*pgx.ConnPool, error) {
+func (db Db) Close() {
+	db.connPool.Close()
+}
+
+func NewConnect(cnf Config) (*Db, error) {
 	conConfig := pgx.ConnConfig{Host: cnf.Host,
 		Port:     cnf.Port,
 		Database: cnf.DbName,
@@ -18,6 +25,5 @@ func Connect(cnf Config) (*pgx.ConnPool, error) {
 		return nil, err
 	}
 
-	return pool, nil
+	return &Db{connPool: pool}, nil
 }
-
