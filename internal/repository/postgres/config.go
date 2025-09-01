@@ -1,6 +1,5 @@
 package postgres
 
-
 type Config struct {
 	DbName   string
 	Host     string
