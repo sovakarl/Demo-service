@@ -17,18 +17,17 @@ func NewService(db repository.Repository, cache cache.Cache) Service {
 
 func (s OrderService) GetOrder(uid string) (*models.Order, error) {
 	if order, err := s.cache.Get(uid); err == nil {
-		return &order, nil
+		return order, nil
 	}
 	order, err := s.db.Get(uid)
 	if err != nil {
 		return nil, err
 	}
-	s.cache.Save(*order)
+	s.cache.Save(order)
 	return order, nil
 }
 
 func (s OrderService) SaveOrder(order *models.Order) error {
-	s.cache.Save(*order)
-	err := s.db.Put(order)
+	err := s.db.Insert(order)
 	return err
 }

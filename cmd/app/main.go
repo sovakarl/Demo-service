@@ -6,7 +6,10 @@ import (
 	"demo-service/internal/repository/postgres"
 	"demo-service/internal/service"
 	"demo-service/internal/transport/rest"
+	"demo-service/internal/transport/rest/handler/order"
+	"fmt"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -14,6 +17,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println("ЛОГ СКАЧАЛИ")
 
 	dbConfig := postgres.Config{
 		DbName:   cnf.DataBase.DbName,
@@ -31,6 +36,11 @@ func main() {
 
 	cache := memory.NewCache()
 	service := service.NewService(db, cache)
-	// handler := rest.NewHandler(service)
+	Orderhandler := order.NewOrderHandler(service)
+	mux := rest.NewOrderRouter(Orderhandler)
+
+	http.ListenAndServe(":8081", mux)
 
 }
+
+// http->router->handler->service->db||cache
