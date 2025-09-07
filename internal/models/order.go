@@ -1,19 +1,25 @@
 package models
 
-//TODO ХЗ ВАЩЕ ПО ПОВОДУ ЭТОЙ ТАБЛИЦЫ
+import "time"
+
 type Order struct {
-	Order_uid          string
-	Track_number       string
-	Entry              string
-	Delivery_id        int
-	Payment_id         int
-	Items              []Item
-	Locale             string
-	Internal_signature string
-	Customer_id        string
-	Delivery_service   string
-	Shardkey           string
-	Sm_id              string
-	Date_created       string
-	Off_shard          string
+	OrderUID          string    `json:"order_uid"`
+	TrackNumber       string    `json:"track_number"`
+	Entry             string    `json:"entry"`
+	Locale            string    `json:"locale"`
+	InternalSignature string    `json:"internal_signature"`
+	CustomerID        string    `json:"customer_id"`
+	DeliveryService   string    `json:"delivery_service"`
+	ShardKey          string    `json:"shardkey"`
+	SmID              int       `json:"sm_id"`
+	DateCreated       time.Time `json:"date_created"`
+	OffShard          string    `json:"off_shard"`
+
+	Delivery Delivery `json:"delivery"`
+	Payment  Payment  `json:"payment"`
+	Items    []Item   `json:"items"`
+}
+
+func (o *Order) GetUid() string {
+	return o.OrderUID
 }

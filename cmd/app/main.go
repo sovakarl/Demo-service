@@ -2,23 +2,31 @@ package main
 
 import (
 	"demo-service/config"
-	memory "demo-service/internal/cache/in_memory"
+	"demo-service/internal/cache/memory"
 	"demo-service/internal/repository/postgres"
 	"demo-service/internal/service"
 	"demo-service/internal/transport/rest"
 	"demo-service/internal/transport/rest/handler/order"
-	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
+
+type Closer interface {
+	Close()
+}
 
 func main() {
 	cnf, err := config.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("ЛОГ СКАЧАЛИ")
+	// канал для системных вызовов
+	sigCh := make(chan os.Signal,1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
 	dbConfig := postgres.Config{
 		DbName:   cnf.DataBase.DbName,
@@ -32,15 +40,24 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
 
-	cache := memory.NewCache()
+	cache := memory.NewCache(time.Minute, time.Minute*2)
 	service := service.NewService(db, cache)
 	Orderhandler := order.NewOrderHandler(service)
 	mux := rest.NewOrderRouter(Orderhandler)
 
-	http.ListenAndServe(":8081", mux)
+	go func() {
+		http.ListenAndServe(":8080", mux)
+	}()
 
+	<-sigCh
+	cleanup(db, cache)
+}
+
+func cleanup(objects ...Closer) {
+	for _, object := range objects {
+		object.Close()
+	}
 }
 
 // http->router->handler->service->db||cache

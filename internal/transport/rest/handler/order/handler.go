@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 type OrderHandler struct {
@@ -26,11 +26,11 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 
 	order, err := h.service.GetOrder(orderUID)
 	if err != nil {
+		// http.Error(w,"",http.)
 		//TODO ДОДЕЛАТЬ ЭТУ ХУЙНЮ
 		return
 	}
 
-	// Устанавливаем заголовок и отдаём JSON
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if err := json.NewEncoder(w).Encode(order); err != nil {
 		http.Error(w, `{"error": "failed to serialize order"}`, http.StatusInternalServerError)

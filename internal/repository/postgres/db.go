@@ -22,5 +22,9 @@ func NewConnect(cnf Config) (*Db, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = pool.Ping(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return &Db{connPool: pool}, nil
 }

@@ -1,15 +1,14 @@
 package models
 
-type Payments struct {
-	Id            int
-	Transaction   string
-	Request_id    string
-	Currency      string
-	Provider      string
-	Amount        int
-	Payment_dt    int
-	Bank          string
-	Delivery_cost int
-	Goods_total   int
-	Custom_fee    int
+type Payment struct {
+	Transaction  string `json:"transaction"`
+	RequestID    string `json:"request_id"`
+	Currency     string `json:"currency"`
+	Provider     string `json:"provider"`
+	Amount       int    `json:"amount"`
+	PaymentDT    int    `json:"payment_dt"`
+	Bank         string `json:"bank"`
+	DeliveryCost int    `json:"delivery_cost"`
+	GoodsTotal   int    `json:"goods_total"`
+	CustomFee    int    `json:"custom_fee"`
 }

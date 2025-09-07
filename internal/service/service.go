@@ -16,14 +16,14 @@ func NewService(db repository.Repository, cache cache.Cache) Service {
 }
 
 func (s OrderService) GetOrder(uid string) (*models.Order, error) {
-	if order, err := s.cache.Get(uid); err == nil {
+	if order, ex := s.cache.Get(uid); ex {
 		return order, nil
 	}
 	order, err := s.db.Get(uid)
 	if err != nil {
 		return nil, err
 	}
-	s.cache.Save(order)
+	s.cache.Set(order)
 	return order, nil
 }
 
