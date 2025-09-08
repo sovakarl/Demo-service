@@ -41,7 +41,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cache := memory.NewCache(time.Minute, time.Minute*2)
+	cache := memory.NewCache(time.Minute, time.Minute*2,10)
 	service := service.NewService(db, cache)
 	Orderhandler := order.NewOrderHandler(service)
 	mux := rest.NewOrderRouter(Orderhandler)

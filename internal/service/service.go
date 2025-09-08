@@ -23,7 +23,7 @@ func (s OrderService) GetOrder(uid string) (*models.Order, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.cache.Set(order)
+	s.cache.Set(uid, order)
 	return order, nil
 }
 
