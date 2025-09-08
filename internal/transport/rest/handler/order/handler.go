@@ -26,8 +26,7 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 
 	order, err := h.service.GetOrder(orderUID)
 	if err != nil {
-		// http.Error(w,"",http.)
-		//TODO ДОДЕЛАТЬ ЭТУ ХУЙНЮ
+		w.Write([]byte(err.Error()))
 		return
 	}
 

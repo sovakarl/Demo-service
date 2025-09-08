@@ -36,14 +36,14 @@ func (c *memory) deleteAfterExpiration(indexShard uint) {
 	shard := c.getShard(uint64(indexShard))
 	sliceDeleteItem := []string{}
 
-	shard.mutex.Lock()
+	shard.mutex.RLock()
 	now := time.Now()
 	for key, value := range shard.items {
 		if now.Sub(value.timeCreated) >= c.defaultDuration {
 			sliceDeleteItem = append(sliceDeleteItem, key)
 		}
 	}
-	shard.mutex.Unlock()
+	shard.mutex.RUnlock()
 
 	shard.mutex.Lock()
 	defer shard.mutex.Unlock()

@@ -5,22 +5,43 @@ import (
 	"github.com/spf13/viper"
 )
 
-type DBConfig struct {
+type DB struct {
 	DbName   string `mapstructure:"db_name"`
-	Host     string `mapstructure:"HOST"`
-	Port     uint16 `mapstructure:"port"`
+	Host     string `mapstructure:"db_host"`
+	Port     uint16 `mapstructure:"db_port"`
 	User     string `mapstructure:"pg_user"`
 	Password string `mapstructure:"pg_password"`
 }
-type AppConfig struct {
-	Host string `mapstructure:"app_host"`
-	Port uint16 `mapstructure:"app_port"`
+type App struct {
+	Host             string `mapstructure:"app_host"`
+	Port             uint16 `mapstructure:"app_port"`
+	CacheWarmUpLimit uint64 `mapstructure:"app_cacheWarmUpLimit"`
+}
+
+// type BrokerConfig struct {
+// }
+
+type Logger struct {
+	LogLevel string `mapstructure:"log_lvl"`
 }
 
 type Config struct {
-	DataBase DBConfig  `mapstructure:",squash"`
-	App      AppConfig `mapstructure:"squah"`
+	DataBase DB     `mapstructure:",squash"`
+	App      App    `mapstructure:",squash"`
+	Log      Logger `mapstructure:",squash"`
 }
+
+// func (c *Config) GetLogConfig() Logger {
+// 	return c.Log
+// }
+
+// func (c *Config) GetAppConfig() App {
+// 	return c.App
+// }
+
+// func (c *Config) GetDbConfig() DB {
+// 	return c.DataBase
+// }
 
 func Load() (*Config, error) {
 	godotenv.Load()
