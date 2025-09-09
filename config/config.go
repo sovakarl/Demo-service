@@ -31,17 +31,6 @@ type Config struct {
 	Log      Logger `mapstructure:",squash"`
 }
 
-// func (c *Config) GetLogConfig() Logger {
-// 	return c.Log
-// }
-
-// func (c *Config) GetAppConfig() App {
-// 	return c.App
-// }
-
-// func (c *Config) GetDbConfig() DB {
-// 	return c.DataBase
-// }
 
 func Load() (*Config, error) {
 	godotenv.Load()

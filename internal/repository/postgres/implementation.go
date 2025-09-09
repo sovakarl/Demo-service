@@ -66,55 +66,56 @@ func (d *Db) Insert(order *models.Order) error {
 }
 
 func (d *Db) GetAll(rowsCount uint64) ([]*models.Order, error) {
-	orders := make([]*models.Order, rowsCount)
-	jsonData := make([][]byte, rowsCount)
-	ctx := context.Background()
+	// orders := make([]*models.Order, rowsCount)
+	// jsonData := make([][]byte, rowsCount)
+	// ctx := context.Background()
 
-	rows := d.connPool.QueryRow(ctx, query.GetOrder, "")
-	for _, order := range  {
-		err := rows.Scan(&order.OrderUID,
-			&order.TrackNumber,
-			&order.Entry,
-			&order.Locale,
-			&order.InternalSignature,
-			&order.CustomerID,
-			&order.DeliveryService,
-			&order.ShardKey,
-			&order.SmID,
-			&order.DateCreated,
-			&order.OffShard,
+	// rows := d.connPool.QueryRow(ctx, query.GetOrder, "")
+	// for _, order := range  {
+	// 	err := rows.Scan(&order.OrderUID,
+	// 		&order.TrackNumber,
+	// 		&order.Entry,
+	// 		&order.Locale,
+	// 		&order.InternalSignature,
+	// 		&order.CustomerID,
+	// 		&order.DeliveryService,
+	// 		&order.ShardKey,
+	// 		&order.SmID,
+	// 		&order.DateCreated,
+	// 		&order.OffShard,
 
-			&order.Delivery.Name,
-			&order.Delivery.Phone,
-			&order.Delivery.Zip,
-			&order.Delivery.City,
-			&order.Delivery.Address,
-			&order.Delivery.Region,
-			&order.Delivery.Email,
+	// 		&order.Delivery.Name,
+	// 		&order.Delivery.Phone,
+	// 		&order.Delivery.Zip,
+	// 		&order.Delivery.City,
+	// 		&order.Delivery.Address,
+	// 		&order.Delivery.Region,
+	// 		&order.Delivery.Email,
 
-			&order.Payment.Transaction,
-			&order.Payment.RequestID,
-			&order.Payment.Currency,
-			&order.Payment.Provider,
-			&order.Payment.Amount,
-			&order.Payment.PaymentDT,
-			&order.Payment.Bank,
-			&order.Payment.DeliveryCost,
-			&order.Payment.GoodsTotal,
-			&order.Payment.CustomFee,
-			&jsonData)
+	// 		&order.Payment.Transaction,
+	// 		&order.Payment.RequestID,
+	// 		&order.Payment.Currency,
+	// 		&order.Payment.Provider,
+	// 		&order.Payment.Amount,
+	// 		&order.Payment.PaymentDT,
+	// 		&order.Payment.Bank,
+	// 		&order.Payment.DeliveryCost,
+	// 		&order.Payment.GoodsTotal,
+	// 		&order.Payment.CustomFee,
+	// 		&jsonData)
 
-		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				return nil, fmt.Errorf("order not found: %s", orderUID)
-			}
-			return nil, fmt.Errorf("failed to scan order: %w", err)
-		}
-		if len(jsonData) > 0 && string(jsonData) != "[]" {
-			if err := json.Unmarshal(jsonData, &order.Items); err != nil {
-				return nil, fmt.Errorf("failed to unmarshal items: %w", err)
-			}
-		}
-	}
-	return &order, nil
+	// 	if err != nil {
+	// 		if errors.Is(err, sql.ErrNoRows) {
+	// 			return nil, fmt.Errorf("order not found: %s", orderUID)
+	// 		}
+	// 		return nil, fmt.Errorf("failed to scan order: %w", err)
+	// 	}
+	// 	if len(jsonData) > 0 && string(jsonData) != "[]" {
+	// 		if err := json.Unmarshal(jsonData, &order.Items); err != nil {
+	// 			return nil, fmt.Errorf("failed to unmarshal items: %w", err)
+	// 		}
+	// 	}
+	// }
+	// return &order, nil
+	return nil, nil
 }

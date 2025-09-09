@@ -5,13 +5,14 @@ import (
 	"demo-service/internal/models"
 	"demo-service/internal/repository"
 	"log/slog"
+	"time"
 )
 
 type OrderService struct {
-	db    repository.Repository
-	cache cache.Cache
-	cnf   Config
-	log   *slog.Logger
+	db     repository.Repository
+	cache  cache.Cache
+	cnf    Config
+	logger *slog.Logger
 }
 
 type Config struct {
@@ -19,20 +20,30 @@ type Config struct {
 }
 
 func (s *OrderService) updateCache() {
+	s.logger.Info("start cache warm-up ")
 	defer func() {
 		if r := recover(); r != nil {
-			s.log.Error("паника при прогреве кеша", r)
+			s.logger.Error("panic when warm-up the cache", r)
 		}
 	}()
 	orders, err := s.db.GetAll(s.cnf.CacheWarmUpLimit)
 	if err != nil {
-		s.log.Error("не удалось загрузить заказы для прогрева кеша", "error", err)
+		s.logger.Debug("Failed to load orders for cache warm-up", "error", err)
+		return
+	}
+	if len(orders) == 0 {
+		s.logger.Debug("no orders found for cache warm-up")
 		return
 	}
 	for _, order := range orders {
 		orderUID := order.GetUid()
 		s.cache.Set(orderUID, order)
 	}
+
+	s.logger.Info("fetched orders for cache warm-up",
+		"count", len(orders),
+		"limit", s.cnf.CacheWarmUpLimit,
+	)
 }
 
 func NewService(db repository.Repository, cache cache.Cache, cnf Config, log *slog.Logger) Service {
@@ -44,16 +55,24 @@ func NewService(db repository.Repository, cache cache.Cache, cnf Config, log *sl
 	}
 
 	service := &OrderService{
-		db:    db,
-		cache: cache,
-		cnf:   cnf,
-		log:   log.With("component", "order_service"),
+		db:     db,
+		cache:  cache,
+		cnf:    cnf,
+		logger: log.With("component", "order_service"),
 	}
 	go service.updateCache()
 	return service
 }
 
 func (s *OrderService) GetOrder(uid string) (*models.Order, error) {
+	defer func(start time.Time) {
+		duration := time.Since(start)
+		s.logger.Debug("GetOrder completed",
+			"order_uid", uid,
+			"duration_ms", duration.Milliseconds(),
+		)
+	}(time.Now())
+	
 	if order, ex := s.cache.Get(uid); ex {
 		return order, nil
 	}

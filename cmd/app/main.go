@@ -7,11 +7,10 @@ import (
 	"demo-service/internal/service"
 	"demo-service/internal/transport/rest"
 	"demo-service/internal/transport/rest/handler/order"
+	"demo-service/logger"
 	"fmt"
 	"log"
-	"log/slog"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -23,17 +22,18 @@ func main() {
 
 	cnf, err := config.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("error pars config")
 	}
+
+	logConf := logger.Config{
+		LogLvl: cnf.Log.LogLevel,
+	}
+
+	logger := logger.NewLoger(logConf)
 
 	// канал для системных вызовов
 	// sigCh := make(chan os.Signal,1)
 	// signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-
-	opts := &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}
-	logger := slog.New(slog.NewTextHandler(os.Stdin, opts))
 
 	// конфиг для БД
 	dbConfig := postgres.Config{
@@ -44,9 +44,11 @@ func main() {
 		User:     cnf.DataBase.User,
 	}
 
+	logger.Info("connect to DataBase...")
 	db, err := postgres.NewConnect(dbConfig)
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("error conect to DataBase", "error", err)
+		return
 	}
 
 	//Конфиг для сервиса

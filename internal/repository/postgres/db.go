@@ -3,12 +3,22 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type Config struct {
+	DbName   string
+	Host     string
+	Port     uint16
+	User     string
+	Password string
+}
+
 type Db struct {
 	connPool *pgxpool.Pool
+	log      *slog.Logger
 }
 
 func (db Db) Close() {
