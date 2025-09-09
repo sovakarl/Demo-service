@@ -1,16 +1,15 @@
 package main
 
 import (
+	"context"
 	"demo-service/config"
-	"demo-service/internal/cache/memory"
-	"demo-service/internal/repository/postgres"
-	"demo-service/internal/service"
-	"demo-service/internal/transport/rest"
-	"demo-service/internal/transport/rest/handler/order"
+	"demo-service/internal/app"
 	"demo-service/logger"
-	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -31,55 +30,41 @@ func main() {
 
 	logger := logger.NewLoger(logConf)
 
-	// канал для системных вызовов
-	// sigCh := make(chan os.Signal,1)
-	// signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-
-	// конфиг для БД
-	dbConfig := postgres.Config{
-		DbName:   cnf.DataBase.DbName,
-		Host:     cnf.DataBase.Host,
-		Port:     cnf.DataBase.Port,
-		Password: cnf.DataBase.Password,
-		User:     cnf.DataBase.User,
-	}
-
-	logger.Info("connect to DataBase...")
-	db, err := postgres.NewConnect(dbConfig)
+	app, err := app.NewApp(cnf, logger)
 	if err != nil {
-		logger.Error("error conect to DataBase", "error", err)
+		logger.Error("error init app", "error", err)
 		return
 	}
 
-	//Конфиг для сервиса
-	serviceConfig := service.Config{
-		CacheWarmUpLimit: cnf.App.CacheWarmUpLimit,
+	// для системных сигналов
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	servChError := make(chan error, 1)
+
+	go func() {
+		if err := app.Run(); err != nil && err != http.ErrServerClosed {
+			logger.Error("Server failed", "error", err)
+			servChError <- err
+		}
+		close(servChError)
+	}()
+
+	select {
+	case err := <-servChError:
+		logger.Error("server crashed", "error", err)
+		return
+	case <-sigCh:
+		logger.Info("Shutdown signal received")
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+
+		if err := app.Shutdown(ctx); err != nil {
+			logger.Warn("Shutdown failed", "error", err)
+			return
+		}
+
+		logger.Info("App shutdown complete")
 	}
 
-	cache := memory.NewCache(time.Minute, time.Minute*2, 10)
-	service := service.NewService(db, cache, serviceConfig, logger)
-	Orderhandler := order.NewOrderHandler(service)
-	mux := rest.NewOrderRouter(Orderhandler)
-
-	//Конфиг для запуска сервака
-	appConfig := config.App{
-		Host: cnf.App.Host,
-		Port: cnf.App.Port,
-	}
-
-	// костыль ебаный с этим адресом
-	addr := fmt.Sprintf("%s:%v", appConfig.Host, appConfig.Port)
-	http.ListenAndServe(addr, mux)
-
-	//чистое завершение проги
-	// <-sigCh
-	// cleanup(db, cache)
 }
-
-func cleanup(objects ...Closer) {
-	for _, object := range objects {
-		object.Close()
-	}
-}
-
-// http->router->handler->service->db||cache

@@ -20,7 +20,7 @@ func NewCache(defaultExpiration, defaultDuration time.Duration, countShard uint)
 		chSignal:          make(chan struct{}),
 		defaultExpiration: defaultExpiration,
 		defaultDuration:   defaultDuration,
-		shards:            make([]shard,countShard),
+		shards:            make([]shard, countShard),
 	}
 
 	for i := range len(cache.shards) {
@@ -56,6 +56,8 @@ func (m *memory) getShard(index uint64) *shard {
 	return &m.shards[index]
 }
 
-func (c *memory) Close() {
+func (c *memory) Close() error {
 	c.stopGC()
+	//TODOШКА ЖЕСТКАЯ
+	return nil
 }

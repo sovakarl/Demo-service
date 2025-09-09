@@ -42,7 +42,6 @@ func (s *OrderService) updateCache() {
 
 	s.logger.Info("fetched orders for cache warm-up",
 		"count", len(orders),
-		"limit", s.cnf.CacheWarmUpLimit,
 	)
 }
 

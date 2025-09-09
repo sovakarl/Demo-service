@@ -119,3 +119,7 @@ func (d *Db) GetAll(rowsCount uint64) ([]*models.Order, error) {
 	// return &order, nil
 	return nil, nil
 }
+
+func (d *Db) Close() error {
+	return nil
+}

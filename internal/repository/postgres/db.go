@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -18,11 +17,7 @@ type Config struct {
 
 type Db struct {
 	connPool *pgxpool.Pool
-	log      *slog.Logger
-}
-
-func (db Db) Close() {
-	db.connPool.Close()
+	// log      *slog.Logger
 }
 
 func NewConnect(cnf Config) (*Db, error) {
