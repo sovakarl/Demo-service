@@ -87,6 +87,6 @@ func (a *App) Run() error {
 	return a.server.ListenAndServe()
 }
 
-func (a *App) Shutdown(ctx context.Context) error{
+func (a *App) Shutdown(ctx context.Context) error {
 	return a.closer.Close()
 }
