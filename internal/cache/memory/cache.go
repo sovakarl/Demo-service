@@ -3,24 +3,30 @@ package memory
 import (
 	"demo-service/internal/models"
 	"hash/fnv"
+	"log/slog"
 	"time"
 )
 
 type memory struct {
-	countShard        uint
+	countShard        uint64
 	chSignal          chan struct{}
 	shards            []shard
 	defaultExpiration time.Duration
 	defaultDuration   time.Duration
+	logger            *slog.Logger
 }
 
-func NewCache(defaultExpiration, defaultDuration time.Duration, countShard uint) *memory {
+func NewCache(defaultExpiration, defaultDuration time.Duration, countShard uint64, logger *slog.Logger) *memory {
+	if logger == nil {
+		logger = slog.Default()
+	}
 	cache := memory{
 		countShard:        countShard,
 		chSignal:          make(chan struct{}),
 		defaultExpiration: defaultExpiration,
 		defaultDuration:   defaultDuration,
 		shards:            make([]shard, countShard),
+		logger:            logger.With("component", "cache"),
 	}
 
 	for i := range len(cache.shards) {
@@ -28,8 +34,10 @@ func NewCache(defaultExpiration, defaultDuration time.Duration, countShard uint)
 	}
 
 	if defaultDuration > 0 {
+		logger.Debug("start cache GC")
 		cache.startGC()
 	}
+	logger.Info("cache start up ")
 	return &cache
 }
 
@@ -43,12 +51,14 @@ func (c *memory) hash(value string) uint64 {
 func (c *memory) Set(orderUID string, order *models.Order) {
 	index := c.hash(orderUID)
 	shard := c.getShard(index)
+	c.logger.Debug("set order", "orderUID", orderUID, "shardIndex", index)
 	shard.set(orderUID, order)
 }
 
 func (c *memory) Get(orderUID string) (*models.Order, bool) {
 	index := c.hash(orderUID)
 	shard := c.getShard(index)
+	c.logger.Debug("get order", "orderUID", orderUID, "shardIndex", index)
 	return shard.get(orderUID)
 }
 
@@ -58,6 +68,5 @@ func (m *memory) getShard(index uint64) *shard {
 
 func (c *memory) Close() error {
 	c.stopGC()
-	//TODOШКА ЖЕСТКАЯ
 	return nil
 }

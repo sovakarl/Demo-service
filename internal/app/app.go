@@ -33,22 +33,24 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 		Password: cnf.DataBase.Password,
 		User:     cnf.DataBase.User,
 	}
-	closer := newCloser()
+
+	// closer := newCloser()
+
 	logger.Info("connect to DataBase...")
 	db, err := postgres.NewConnect(dbConfig)
 	if err != nil {
 		logger.Error("error conect to DataBase", "error", err)
 		return nil, err
 	}
-	closer.add(db)
+	// closer.add(db)
 
 	//Конфиг для сервиса
 	serviceConfig := service.Config{
 		CacheWarmUpLimit: cnf.App.CacheWarmUpLimit,
 	}
 
-	cache := memory.NewCache(time.Minute, time.Minute*2, 10)
-	closer.add(cache)
+	cache := memory.NewCache(time.Second*15, time.Second*30, 10, logger)
+	// closer.add(cache)
 
 	service := service.NewService(db, cache, serviceConfig, logger)
 	Orderhandler := order.NewOrderHandler(service)
@@ -66,14 +68,10 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 		Handler: mux,
 	}
 
-	var serverFuncClose closeFunc = func() error {
-		return server.Shutdown()
-	}
-
-	closer.add(serverFuncClose)
+	// closer.add(serverFuncClose)
 
 	app := &App{
-		closer: closer,
+		// closer: closer,
 		server: server,
 		db:     db,
 		cache:  cache,
@@ -85,8 +83,10 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 func (a *App) Run() error {
 	a.logger.Info("Starting server on", "addr", a.server.Addr)
 	return a.server.ListenAndServe()
+
 }
 
 func (a *App) Shutdown(ctx context.Context) error {
-	return a.closer.Close()
+	// return a.closer.Close()
+	return nil
 }

@@ -13,10 +13,6 @@ import (
 	"time"
 )
 
-type Closer interface {
-	Close()
-}
-
 func main() {
 
 	cnf, err := config.Load()

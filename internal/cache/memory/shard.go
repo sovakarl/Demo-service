@@ -12,8 +12,8 @@ type item struct {
 }
 
 type shard struct {
-	mutex     sync.RWMutex
-	items     map[string]item
+	mutex sync.RWMutex
+	items map[string]item
 }
 
 func newShard() shard {
@@ -31,7 +31,6 @@ func (s *shard) set(key string, value *models.Order) {
 	}
 }
 
-
 func (s *shard) get(key string) (*models.Order, bool) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
@@ -40,4 +39,10 @@ func (s *shard) get(key string) (*models.Order, bool) {
 		return nil, false
 	}
 	return item.value, ex
+}
+
+func (s *shard) countItems() uint64 {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+	return uint64(len(s.items))
 }
