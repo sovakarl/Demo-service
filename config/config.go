@@ -6,7 +6,7 @@ import (
 )
 
 type DB struct {
-	DbName   string `mapstructure:"db_name"`
+	DbName   string `mapstructure:"pg_db_name"`
 	Host     string `mapstructure:"db_host"`
 	Port     uint16 `mapstructure:"db_port"`
 	User     string `mapstructure:"pg_user"`
@@ -18,8 +18,6 @@ type App struct {
 	CacheWarmUpLimit uint64 `mapstructure:"app_cacheWarmUpLimit"`
 }
 
-// type BrokerConfig struct {
-// }
 
 type Logger struct {
 	LogLevel string `mapstructure:"log_lvl"`

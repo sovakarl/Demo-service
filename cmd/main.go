@@ -5,6 +5,7 @@ import (
 	"demo-service/config"
 	"demo-service/internal/app"
 	"demo-service/logger"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal("error pars config")
 	}
-
+	fmt.Println(cnf)
 	logConf := logger.Config{
 		LogLvl: cnf.Log.LogLevel,
 	}
@@ -46,6 +47,7 @@ func main() {
 		close(servChError)
 	}()
 
+	
 	select {
 	case err := <-servChError:
 		logger.Error("server crashed", "error", err)

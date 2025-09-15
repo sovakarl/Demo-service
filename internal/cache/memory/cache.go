@@ -10,6 +10,7 @@ import (
 type memory struct {
 	countShard        uint64
 	chSignal          chan struct{}
+	chStatusGC        chan struct{}
 	shards            []shard
 	defaultExpiration time.Duration
 	defaultDuration   time.Duration
@@ -23,6 +24,7 @@ func NewCache(defaultExpiration, defaultDuration time.Duration, countShard uint6
 	cache := memory{
 		countShard:        countShard,
 		chSignal:          make(chan struct{}),
+		chStatusGC:        make(chan struct{},1),
 		defaultExpiration: defaultExpiration,
 		defaultDuration:   defaultDuration,
 		shards:            make([]shard, countShard),
@@ -34,7 +36,6 @@ func NewCache(defaultExpiration, defaultDuration time.Duration, countShard uint6
 	}
 
 	if defaultDuration > 0 {
-		logger.Debug("start cache GC")
 		cache.startGC()
 	}
 	logger.Info("cache start up ")
@@ -67,6 +68,5 @@ func (m *memory) getShard(index uint64) *shard {
 }
 
 func (c *memory) Close() error {
-	c.stopGC()
-	return nil
+	return c.stopGC()
 }

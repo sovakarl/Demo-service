@@ -2,9 +2,9 @@ container_name=postgres_db
 
 pathToApp=./cmd/app/main.go
 
-default:init
+default:docker app
 
-init:down build up
+docker:down build up
 
 logs:
 	docker logs -f ${container_name}
@@ -24,3 +24,5 @@ down:
 shell:
 	docker exec -it ${container_name} bash
 
+app:
+	go run ./cmd/main.go

@@ -21,7 +21,9 @@ type Db struct {
 }
 
 func NewConnect(cnf Config) (*Db, error) {
+
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", cnf.User, cnf.Password, cnf.Host, cnf.Port, cnf.DbName)
+	fmt.Println(connStr)
 	ctx := context.Background()
 	pool, err := pgxpool.New(ctx, connStr)
 	if err != nil {

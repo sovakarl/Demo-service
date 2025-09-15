@@ -1,27 +1,49 @@
 package memory
 
 import (
+	"errors"
+	"log/slog"
+	"sync"
 	"time"
 )
+
+var (
+	ErrGCStopped    = errors.New("gc stoped")
+	ErrGCWasStopped = errors.New("GC was stopped")
+)
+
+
 
 func (m *memory) startGC() {
 	go m.gc()
 }
 
 func (m *memory) gc() {
-	for index := range m.countShard {
-		go func(i uint64) {
-			m.workGC(i)
-		}(index)
+	m.logger.Debug("start cache GC")
+
+	var wg sync.WaitGroup
+	wg.Add(int(m.countShard))
+
+	for indexShard := range m.countShard {
+		logger := m.logger.With("shard", indexShard)
+
+		go func(i uint64, log *slog.Logger) {
+			defer wg.Done()
+			m.workGC(i, log)
+		}(indexShard, logger)
+
 	}
+	wg.Wait()
+	m.chStatusGC <- struct{}{}
 }
 
-func (m *memory) workGC(indexShard uint64) {
+func (m *memory) workGC(indexShard uint64, logger *slog.Logger) {
 	defer func() {
 		if r := recover(); r != nil {
-			m.logger.Debug("GC panic", "shard", indexShard, "panic", r)
+			logger.Debug("GC panic", "panic", r)
 		}
 	}()
+
 	shard := m.getShard(indexShard)
 	ticker := time.NewTicker(m.defaultExpiration)
 	defer ticker.Stop()
@@ -30,20 +52,20 @@ func (m *memory) workGC(indexShard uint64) {
 		select {
 		case _, ok := <-m.chSignal:
 			if !ok {
-				m.logger.Debug("GC stoped ", "shard", indexShard)
+				logger.Debug("shard stoped")
 				return
 			}
 		case <-ticker.C:
 			if shard.countItems() == 0 {
 				continue
 			}
-			m.logger.Debug("GC start clean ", "shard", indexShard)
-			m.deleteAfterExpiration(shard)
+			logger.Debug("GC start clean ")
+			m.deleteAfterExpiration(shard, logger)
 		}
 	}
 }
 
-func (m *memory) deleteAfterExpiration(shard *shard) {
+func (m *memory) deleteAfterExpiration(shard *shard, logger *slog.Logger) {
 
 	sliceDeleteItem := []string{}
 
@@ -58,17 +80,27 @@ func (m *memory) deleteAfterExpiration(shard *shard) {
 
 	shard.mutex.Lock()
 	defer shard.mutex.Unlock()
+
 	for _, key := range sliceDeleteItem {
 		delete(shard.items, key)
 	}
-	m.logger.Debug("GC clean", "indexSh", "count delete", len(sliceDeleteItem))
+	logger.Debug("GC clean", "count delete", rune(len(sliceDeleteItem)))
 }
 
 func (m *memory) stopGC() error {
 	m.logger.Debug("get signal for stop GC")
-	if _, ex := <-m.chSignal; ex {
+
+	select {
+	case _, ex := <-m.chSignal:
+		if !ex {
+			return ErrGCWasStopped
+		}
 		close(m.chSignal)
-		return nil
+	default:
+		close(m.chSignal)
 	}
+
+	<-m.chStatusGC
 	return nil
+
 }

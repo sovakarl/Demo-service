@@ -11,7 +11,6 @@ import (
 	"demo-service/internal/transport/rest"
 	"demo-service/internal/transport/rest/handler/order"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"time"
@@ -22,7 +21,7 @@ type App struct {
 	db     repository.Repository
 	cache  cache.Cache
 	logger *slog.Logger
-	closer io.Closer
+	closer *appCloser
 }
 
 func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
@@ -33,24 +32,23 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 		Password: cnf.DataBase.Password,
 		User:     cnf.DataBase.User,
 	}
-
-	// closer := newCloser()
+	closer := newCloser(logger)
 
 	logger.Info("connect to DataBase...")
 	db, err := postgres.NewConnect(dbConfig)
 	if err != nil {
-		logger.Error("error conect to DataBase", "error", err)
 		return nil, err
 	}
-	// closer.add(db)
+
+	closer.add(db.Close, "databases closed")
 
 	//Конфиг для сервиса
 	serviceConfig := service.Config{
 		CacheWarmUpLimit: cnf.App.CacheWarmUpLimit,
 	}
 
-	cache := memory.NewCache(time.Second*15, time.Second*30, 10, logger)
-	// closer.add(cache)
+	cache := memory.NewCache(time.Second*15, time.Second*30, 3, logger)
+	closer.add(cache.Close, "cache closed")
 
 	service := service.NewService(db, cache, serviceConfig, logger)
 	Orderhandler := order.NewOrderHandler(service)
@@ -68,15 +66,15 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 		Handler: mux,
 	}
 
-	// closer.add(serverFuncClose)
-
 	app := &App{
-		// closer: closer,
+		closer: closer,
 		server: server,
 		db:     db,
 		cache:  cache,
 		logger: logger,
 	}
+
+	closer.addWithContext(server.Shutdown, "server stopped")
 	return app, nil
 }
 
@@ -87,6 +85,6 @@ func (a *App) Run() error {
 }
 
 func (a *App) Shutdown(ctx context.Context) error {
-	// return a.closer.Close()
+	a.closer.Close(ctx)
 	return nil
 }
