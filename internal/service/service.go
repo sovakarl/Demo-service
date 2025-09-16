@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"demo-service/internal/cache"
 	"demo-service/internal/models"
 	"demo-service/internal/repository"
@@ -26,7 +27,11 @@ func (s *OrderService) updateCache() {
 			s.logger.Error("panic when warm-up the cache", r)
 		}
 	}()
-	orders, err := s.db.GetAll(s.cnf.CacheWarmUpLimit)
+
+	ctx, done := context.WithTimeout(context.Background(), time.Minute)
+	defer done()
+
+	orders, err := s.db.GetAll(ctx, s.cnf.CacheWarmUpLimit)
 	if err != nil {
 		s.logger.Debug("Failed to load orders for cache warm-up", "error", err)
 		return
@@ -63,19 +68,22 @@ func NewService(db repository.Repository, cache cache.Cache, cnf Config, log *sl
 	return service
 }
 
-func (s *OrderService) GetOrder(uid string) (*models.Order, error) {
+func (s *OrderService) GetOrder(ctx context.Context, uid string) (*models.Order, error) {
 	defer func(start time.Time) {
 		duration := time.Since(start)
-		s.logger.Debug("GetOrder completed",
+		s.logger.Debug("GetOrder completed ",
 			"order_uid", uid,
 			"duration_ms", duration.Milliseconds(),
 		)
 	}(time.Now())
-	
+
 	if order, ex := s.cache.Get(uid); ex {
 		return order, nil
 	}
-	order, err := s.db.Get(uid)
+
+	ctx, done := context.WithTimeout(ctx, time.Minute)
+	defer done()
+	order, err := s.db.Get(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +91,10 @@ func (s *OrderService) GetOrder(uid string) (*models.Order, error) {
 	return order, nil
 }
 
-func (s *OrderService) SaveOrder(order *models.Order) error {
-	err := s.db.Insert(order)
+func (s *OrderService) SaveOrder(ctx context.Context, order *models.Order) error {
+	ctx, done := context.WithTimeout(ctx, time.Minute)
+	defer done()
+
+	err := s.db.Insert(ctx, order)
 	return err
 }

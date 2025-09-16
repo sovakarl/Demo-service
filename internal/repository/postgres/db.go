@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -17,21 +19,44 @@ type Config struct {
 
 type Db struct {
 	connPool *pgxpool.Pool
-	// log      *slog.Logger
+	log      *slog.Logger
 }
 
-func NewConnect(cnf Config) (*Db, error) {
+func NewConnect(cnf Config, logger *slog.Logger) (*Db, error) {
+	if logger == nil {
+		logger = slog.Default()
+	}
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", cnf.User, cnf.Password, cnf.Host, cnf.Port, cnf.DbName)
-	fmt.Println(connStr)
+
 	ctx := context.Background()
-	pool, err := pgxpool.New(ctx, connStr)
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
+
+	config, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
 		return nil, err
 	}
+	
+	config.MaxConns = 10
+	config.MinConns = 5
+	config.MaxConnLifetime = 30 * time.Minute
+	config.HealthCheckPeriod = time.Minute
+	config.MaxConnIdleTime = 10 * time.Minute
+
+	pool, err := pgxpool.NewWithConfig(ctx, config)
+	if err != nil {
+		return nil, err
+	}
+
 	err = pool.Ping(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &Db{connPool: pool}, nil
+
+	newDb := &Db{
+		connPool: pool,
+		log:      logger.With("component", "DB"),
+	}
+	return newDb, nil
 }

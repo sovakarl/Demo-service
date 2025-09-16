@@ -8,12 +8,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 )
 
-func (d *Db) Get(orderUID string) (*models.Order, error) {
+var ErrConnIsNil = errors.New("connPool is nil")
+
+func (d *Db) Get(ctx context.Context, orderUID string) (*models.Order, error) {
+
+	defer func(start time.Time) {
+		duration := time.Since(start)
+		d.log.Debug("GetOrder completed",
+			"order_uid", orderUID,
+			"duration_ms", duration.Milliseconds(),
+		)
+	}(time.Now())
+
 	var order models.Order
 	var jsonData []byte
-	ctx := context.Background()
+	// ctx := context.Background()
 
 	err := d.connPool.QueryRow(ctx, query.GetOrder, orderUID).Scan(&order.OrderUID,
 		&order.TrackNumber,
@@ -61,11 +73,11 @@ func (d *Db) Get(orderUID string) (*models.Order, error) {
 	return &order, nil
 }
 
-func (d *Db) Insert(order *models.Order) error {
+func (d *Db) Insert(ctx context.Context, order *models.Order) error {
 	return nil
 }
 
-func (d *Db) GetAll(rowsCount uint64) ([]*models.Order, error) {
+func (d *Db) GetAll(ctx context.Context, rowsCount uint64) ([]*models.Order, error) {
 	// orders := make([]*models.Order, rowsCount)
 	// jsonData := make([][]byte, rowsCount)
 	// ctx := context.Background()
@@ -121,5 +133,8 @@ func (d *Db) GetAll(rowsCount uint64) ([]*models.Order, error) {
 }
 
 func (d *Db) Close() error {
-	return nil
+	if d.connPool != nil {
+		d.connPool.Close()
+	}
+	return ErrConnIsNil
 }

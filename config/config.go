@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -18,7 +17,6 @@ type App struct {
 	CacheWarmUpLimit uint64 `mapstructure:"app_cacheWarmUpLimit"`
 }
 
-
 type Logger struct {
 	LogLevel string `mapstructure:"log_lvl"`
 }
@@ -29,15 +27,16 @@ type Config struct {
 	Log      Logger `mapstructure:",squash"`
 }
 
-
 func Load() (*Config, error) {
-	godotenv.Load()
 
-	viper.SetConfigFile(".env")
-	viper.SetConfigType("env")
+	// viper.SetConfigFile(".env")
+	// viper.SetConfigType("env")
+	// viper.AddConfigPath(".")
 
+	viper.SetEnvPrefix("")
 	viper.AutomaticEnv()
-	viper.ReadInConfig()
+
+	// viper.ReadInConfig()
 
 	var cfg Config
 	err := viper.Unmarshal(&cfg)

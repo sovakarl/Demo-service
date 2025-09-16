@@ -35,7 +35,7 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 	closer := newCloser(logger)
 
 	logger.Info("connect to DataBase...")
-	db, err := postgres.NewConnect(dbConfig)
+	db, err := postgres.NewConnect(dbConfig,logger)
 	if err != nil {
 		return nil, err
 	}
@@ -85,6 +85,5 @@ func (a *App) Run() error {
 }
 
 func (a *App) Shutdown(ctx context.Context) error {
-	a.closer.Close(ctx)
-	return nil
+	return a.closer.Close(ctx)
 }

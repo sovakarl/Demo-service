@@ -17,6 +17,7 @@ func NewOrderHandler(s service.Service) *OrderHandler {
 }
 
 func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	orderUID := chi.URLParam(r, "order_uid")
 
 	if orderUID == "" {
@@ -24,7 +25,7 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := h.service.GetOrder(orderUID)
+	order, err := h.service.GetOrder(ctx, orderUID)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return
