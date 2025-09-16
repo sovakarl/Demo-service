@@ -35,7 +35,7 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 	closer := newCloser(logger)
 
 	logger.Info("connect to DataBase...")
-	db, err := postgres.NewConnect(dbConfig,logger)
+	db, err := postgres.NewConnect(dbConfig, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 
 	//Конфиг для сервиса
 	serviceConfig := service.Config{
-		CacheWarmUpLimit: cnf.App.CacheWarmUpLimit,
+		CacheWarmUpLimit: 5,
 	}
 
 	cache := memory.NewCache(time.Second*15, time.Second*30, 3, logger)

@@ -5,20 +5,19 @@ import (
 )
 
 type DB struct {
-	DbName   string `mapstructure:"pg_db_name"`
-	Host     string `mapstructure:"db_host"`
-	Port     uint16 `mapstructure:"db_port"`
-	User     string `mapstructure:"pg_user"`
-	Password string `mapstructure:"pg_password"`
+	DbName   string `mapstructure:"DB_NAME"`
+	Host     string `mapstructure:"DB_HOST"`
+	Port     uint16 `mapstructure:"DB_PORT"`
+	User     string `mapstructure:"DB_USER"`
+	Password string `mapstructure:"DB_PASSWORD"`
 }
 type App struct {
-	Host             string `mapstructure:"app_host"`
-	Port             uint16 `mapstructure:"app_port"`
-	CacheWarmUpLimit uint64 `mapstructure:"app_cacheWarmUpLimit"`
+	Host string `mapstructure:"APP_HOST"`
+	Port uint16 `mapstructure:"APP_PORT"`
 }
 
 type Logger struct {
-	LogLevel string `mapstructure:"log_lvl"`
+	LogLevel string `mapstructure:"LOG_LVL"`
 }
 
 type Config struct {
@@ -29,14 +28,23 @@ type Config struct {
 
 func Load() (*Config, error) {
 
-	// viper.SetConfigFile(".env")
-	// viper.SetConfigType("env")
-	// viper.AddConfigPath(".")
+	viper.SetConfigFile(".env")
+	viper.SetConfigType("env")
+	viper.AddConfigPath(".")
 
 	viper.SetEnvPrefix("")
 	viper.AutomaticEnv()
 
-	// viper.ReadInConfig()
+	viper.BindEnv("DB_PORT")
+	viper.BindEnv("DB_HOST")
+	viper.BindEnv("DB_NAME")
+	viper.BindEnv("DB_USER")
+	viper.BindEnv("DB_PASSWORD")
+
+	viper.BindEnv("APP_HOST")
+	viper.BindEnv("APP_PORT")
+
+	viper.ReadInConfig()
 
 	var cfg Config
 	err := viper.Unmarshal(&cfg)

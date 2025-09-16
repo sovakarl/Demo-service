@@ -5,9 +5,9 @@ services:
     container_name: postgres_db
     hostname: postgres_db
     environment:
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
-      POSTGRES_USER: ${PG_USER}
-      POSTGRES_DB: ${PG_DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -15,6 +15,12 @@ services:
       - ./docker/postgres:/docker-entrypoint-initdb.d
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   # kafka:
   #   image: bitnami/kafka:3.7
   #   container_name: kafka
@@ -38,11 +44,24 @@ services:
   #   volumes:
   #     -kafkaData:/bitnami/kafka
 
-  # app:
-  #   # context: ./
-  #   build:
+  app:
+    build: .
+    container_name: app
+    environment:
+      APP_HOST: 0.0.0.0   
+      APP_PORT: 8080      
+      DB_PORT: 5432
+      DB_HOST: postgres_db
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      db: 
+        condition: service_healthy
 
-  # kafka
 volumes:
   pgdata:
   # kafkaData:
+
+

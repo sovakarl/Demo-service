@@ -2,7 +2,7 @@ container_name=postgres_db
 
 pathToApp=./cmd/app/main.go
 
-default:docker app
+default:docker
 
 docker:down build up
 
