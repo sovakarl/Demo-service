@@ -21,5 +21,8 @@ type Order struct {
 }
 
 func (o *Order) GetUid() string {
+	if o == nil {
+		return ""
+	}
 	return o.OrderUID
 }

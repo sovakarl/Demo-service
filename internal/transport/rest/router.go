@@ -8,6 +8,7 @@ import (
 
 func NewOrderRouter(handler *order.OrderHandler) *chi.Mux {
 	r := chi.NewRouter()
+	r.Get("/order", handler.Page)
 	r.Get("/order/{order_uid}", handler.GetOrder)
 	return r
 }

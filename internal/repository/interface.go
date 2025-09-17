@@ -10,3 +10,4 @@ type Repository interface {
 	GetAll(ctx context.Context, rowsCount uint64) ([]*models.Order, error)
 	Insert(ctx context.Context, order *models.Order) error
 }
+

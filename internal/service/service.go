@@ -6,6 +6,7 @@ import (
 	"demo-service/internal/models"
 	"demo-service/internal/repository"
 	"log/slog"
+	"runtime/debug"
 	"time"
 )
 
@@ -18,36 +19,6 @@ type OrderService struct {
 
 type Config struct {
 	CacheWarmUpLimit uint64
-}
-
-func (s *OrderService) updateCache() {
-	s.logger.Info("start cache warm-up ")
-	defer func() {
-		if r := recover(); r != nil {
-			s.logger.Error("panic when warm-up the cache", r)
-		}
-	}()
-
-	ctx, done := context.WithTimeout(context.Background(), time.Minute)
-	defer done()
-
-	orders, err := s.db.GetAll(ctx, s.cnf.CacheWarmUpLimit)
-	if err != nil {
-		s.logger.Debug("Failed to load orders for cache warm-up", "error", err)
-		return
-	}
-	if len(orders) == 0 {
-		s.logger.Debug("no orders found for cache warm-up")
-		return
-	}
-	for _, order := range orders {
-		orderUID := order.GetUid()
-		s.cache.Set(orderUID, order)
-	}
-
-	s.logger.Info("fetched orders for cache warm-up",
-		"count", len(orders),
-	)
 }
 
 func NewService(db repository.Repository, cache cache.Cache, cnf Config, log *slog.Logger) Service {
@@ -68,6 +39,38 @@ func NewService(db repository.Repository, cache cache.Cache, cnf Config, log *sl
 	return service
 }
 
+func (s *OrderService) updateCache() {
+	s.logger.Info("start cache warm-up ")
+	defer func() {
+		if r := recover(); r != nil {
+			s.logger.Error("panic when warm-up the cache", r)
+			debug.PrintStack()
+		}
+	}()
+
+	ctx, done := context.WithTimeout(context.Background(), time.Minute)
+	defer done()
+
+	orders, err := s.db.GetAll(ctx, s.cnf.CacheWarmUpLimit)
+	if err != nil {
+		s.logger.Debug("Failed to load orders for cache warm-up", "error", err)
+		return
+	}
+	if len(orders) == 0 {
+		s.logger.Debug("no orders found for cache warm-up")
+		return
+	}
+	for _, order := range orders {
+		if orderUID := order.GetUid(); orderUID != "" {
+			s.cache.Set(orderUID, order)
+		}
+	}
+
+	s.logger.Info("fetched orders for cache warm-up",
+		"count", len(orders),
+	)
+}
+
 func (s *OrderService) GetOrder(ctx context.Context, uid string) (*models.Order, error) {
 	defer func(start time.Time) {
 		duration := time.Since(start)
@@ -83,6 +86,7 @@ func (s *OrderService) GetOrder(ctx context.Context, uid string) (*models.Order,
 
 	ctx, done := context.WithTimeout(ctx, time.Minute)
 	defer done()
+
 	order, err := s.db.Get(ctx, uid)
 	if err != nil {
 		return nil, err

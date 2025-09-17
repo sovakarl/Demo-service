@@ -35,15 +35,6 @@ func Load() (*Config, error) {
 	viper.SetEnvPrefix("")
 	viper.AutomaticEnv()
 
-	viper.BindEnv("DB_PORT")
-	viper.BindEnv("DB_HOST")
-	viper.BindEnv("DB_NAME")
-	viper.BindEnv("DB_USER")
-	viper.BindEnv("DB_PASSWORD")
-
-	viper.BindEnv("APP_HOST")
-	viper.BindEnv("APP_PORT")
-
 	viper.ReadInConfig()
 
 	var cfg Config

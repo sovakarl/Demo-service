@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"database/sql"
 )
 
 type OrderHandler struct {
@@ -21,19 +22,37 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	orderUID := chi.URLParam(r, "order_uid")
 
 	if orderUID == "" {
-		http.Error(w, `{"error": "order_uid is missing in path"}`, http.StatusBadRequest)
+		writeErrorJSON(w, http.StatusBadRequest, "order_uid is missing in path")
 		return
 	}
 
 	order, err := h.service.GetOrder(ctx, orderUID)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		if err == sql.ErrNoRows {
+			writeErrorJSON(w, http.StatusNotFound, "order not found")
+			return
+		}
+		writeErrorJSON(w, http.StatusInternalServerError, "internal error")
 		return
 	}
 
+	writeJSON(w, http.StatusOK, order)
+}
+
+func (h *OrderHandler) Page(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	http.ServeFile(w, r, "internal/web/order.html")
+}
+
+func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if err := json.NewEncoder(w).Encode(order); err != nil {
-		http.Error(w, `{"error": "failed to serialize order"}`, http.StatusInternalServerError)
-		return
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(v)
+}
+
+func writeErrorJSON(w http.ResponseWriter, status int, message string) {
+	type errorResponse struct {
+		Error string `json:"error"`
 	}
+	writeJSON(w, status, errorResponse{Error: message})
 }
