@@ -30,19 +30,17 @@ func newCloser(log *slog.Logger) *appCloser {
 }
 
 func (c *appCloser) graceFullShutDown(ctx context.Context, fnc funcClose) error {
-	chSignal := make(chan struct{}, 1)
+	chSignal := make(chan error, 1)
 
 	go func() {
-		fnc.fn(ctx)
-		chSignal <- struct{}{}
+		chSignal <- fnc.fn(ctx)
 		c.logger.Info(fnc.msg)
 
 	}()
 
 	select {
-	case <-chSignal:
-
-		return nil
+	case err := <-chSignal:
+		return err
 	case <-ctx.Done():
 		return fmt.Errorf("timeout shutdown")
 	}

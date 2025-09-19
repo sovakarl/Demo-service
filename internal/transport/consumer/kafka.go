@@ -4,6 +4,7 @@ import (
 	"context"
 	"demo-service/internal/models"
 	"fmt"
+	"sync"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
@@ -22,8 +23,9 @@ func (c Config) hostPort() string {
 }
 
 type Kafka struct {
-	statusCh chan struct{}
-	signalCh chan struct{}
+	ctx      context.Context
+	cancel   context.CancelFunc
+	wg       sync.WaitGroup
 	runing   bool
 	consumer *kafka.Consumer
 	handler  MessageHandler
@@ -42,9 +44,10 @@ func NewKafka(cnf Config, handler MessageHandler) (*Kafka, error) {
 		return nil, err
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
 	broker := Kafka{
-		statusCh: make(chan struct{}, 1),
-		signalCh: make(chan struct{}),
+		ctx:      ctx,
+		cancel:   cancel,
 		runing:   false,
 		consumer: consumer,
 		handler:  handler,

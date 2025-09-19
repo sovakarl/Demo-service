@@ -52,7 +52,7 @@ func main() {
 		return
 	case <-sigCh:
 		logger.Info("Shutdown signal received")
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 		defer cancel()
 
 		if err := app.Shutdown(ctx); err != nil {

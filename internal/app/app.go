@@ -85,6 +85,7 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 		db:     db,
 		cache:  cache,
 		logger: logger,
+		broker: broker,
 	}
 
 	closer.addWithContext(server.Shutdown, "server stopped")
@@ -109,6 +110,7 @@ func (a *App) Run() error {
 
 	// wg.Wait()
 	// return nil
+	a.broker.Start()
 	a.logger.Info("Starting server on", "addr", a.server.Addr)
 	return a.server.ListenAndServe()
 }
