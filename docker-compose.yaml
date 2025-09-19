@@ -50,31 +50,17 @@ services:
       start_period: 30s 
     volumes:
       - kafkaData:/bitnami/kafka
-    command:
-      - /bin/bash
-      - -c
-      - |
-        # Запускаем Kafka в фоне
+    command: >
+     bash -c "
         /opt/bitnami/scripts/kafka/run.sh &
-        KAFKA_PID=$$
-
-        # Ждём, пока Kafka станет готова
-        echo "⏳ Waiting for Kafka to be ready..."
-        until kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1; do
-          sleep 5
-        done
-
-        # Создаём топик 'order', если его нет
-        echo "✅ Creating topic 'order'..."
-        kafka-topics.sh --bootstrap-server localhost:9092 \
-          --create \
-          --topic order \
-          --partitions 3 \
-          --replication-factor 1 \
-          --if-not-exists
-
-        # Передаём управление основному процессу
-        wait $$KAFKA_PID
+      
+        sleep 15;
+        
+        # Создаем топики
+        kafka-topics.sh --create --bootstrap-server localhost:9092 --topic order --partitions 3 --replication-factor 1;        
+        # Ждем основного процесса
+        wait
+      "
 
   app:
     build: .

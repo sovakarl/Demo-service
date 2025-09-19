@@ -50,6 +50,11 @@ func Load() (*Config, error) {
 	viper.BindEnv("DB_USER")
 	viper.BindEnv("DB_PASSWORD")
 
+	viper.BindEnv("KAFKA_TOPIC")
+	viper.BindEnv("KAFKA_HOST")
+	viper.BindEnv("KAFKA_PORT")
+	viper.BindEnv("KAFKA_GroupID")
+
 	viper.BindEnv("APP_HOST")
 	viper.BindEnv("APP_PORT")
 	viper.BindEnv("LOG_LVL")
