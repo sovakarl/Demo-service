@@ -3,6 +3,7 @@ module demo-service
 go 1.24.0
 
 require (
+	github.com/confluentinc/confluent-kafka-go v1.9.2 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect

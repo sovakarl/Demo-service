@@ -8,6 +8,7 @@ import (
 	"demo-service/internal/repository"
 	"demo-service/internal/repository/postgres"
 	"demo-service/internal/service"
+	"demo-service/internal/transport/consumer"
 	"demo-service/internal/transport/rest"
 	"demo-service/internal/transport/rest/handler/order"
 	"fmt"
@@ -22,6 +23,7 @@ type App struct {
 	cache  cache.Cache
 	logger *slog.Logger
 	closer *appCloser
+	broker *consumer.Kafka
 }
 
 func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
@@ -54,6 +56,17 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 	Orderhandler := order.NewOrderHandler(service)
 	mux := rest.NewOrderRouter(Orderhandler)
 
+	brokerConf := consumer.Config{
+		Host:    cnf.Consumer.Host,
+		Port:    cnf.Consumer.Port,
+		GroupID: cnf.Consumer.GroupID,
+	}
+	broker, err := consumer.NewKafka(brokerConf, service.SaveOrder)
+	if err != nil {
+		return nil, err
+	}
+	closer.add(broker.Close, "kafka connecnt closed")
+
 	//Конфиг для запуска сервака
 	appConfig := config.App{
 		Host: cnf.App.Host,
@@ -79,9 +92,25 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 }
 
 func (a *App) Run() error {
+	// chSignal := make(chan error)
+	// wg := sync.WaitGroup{}
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	a.logger.Info("Starting server on", "addr", a.server.Addr)
+	// 	chSignal <- a.server.ListenAndServe()
+	// }()
+
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	chSignal <- a.broker.Close()
+	// }()
+
+	// wg.Wait()
+	// return nil
 	a.logger.Info("Starting server on", "addr", a.server.Addr)
 	return a.server.ListenAndServe()
-
 }
 
 func (a *App) Shutdown(ctx context.Context) error {

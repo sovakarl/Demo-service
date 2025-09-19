@@ -35,7 +35,7 @@ func (c *appCloser) graceFullShutDown(ctx context.Context, fnc funcClose) error 
 	go func() {
 		fnc.fn(ctx)
 		chSignal <- struct{}{}
-		c.logger.Debug(fnc.msg)
+		c.logger.Info(fnc.msg)
 
 	}()
 
