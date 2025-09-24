@@ -8,8 +8,8 @@ import (
 
 type DB struct {
 	DbName   string `mapstructure:"DB_NAME"`
-	Host     string `mapstructure:"DB_HOST"`
-	Port     uint16 `mapstructure:"DB_PORT"`
+	Host     string `mapstructure:"APP_DB_HOST"`
+	Port     uint16 `mapstructure:"APP_DB_PORT"`
 	User     string `mapstructure:"DB_USER"`
 	Password string `mapstructure:"DB_PASSWORD"`
 }
@@ -44,8 +44,8 @@ func Load() (*Config, error) {
 	viper.SetEnvPrefix("")
 	viper.AutomaticEnv()
 
-	viper.BindEnv("DB_PORT")
-	viper.BindEnv("DB_HOST")
+	viper.BindEnv("APP_DB_PORT")
+	viper.BindEnv("APP_DB_HOST")
 	viper.BindEnv("DB_NAME")
 	viper.BindEnv("DB_USER")
 	viper.BindEnv("DB_PASSWORD")
