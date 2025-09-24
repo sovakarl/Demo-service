@@ -66,8 +66,8 @@ services:
     build: .
     container_name: app
     environment:      
-      DB_PORT: 5432
-      DB_HOST: postgres_db
+      APP_DB_PORT: 5432
+      APP_DB_HOST: postgres_db
       KAFKA_PORT: 9092
       KAFKA_HOST: kafka
       APP_HOST: 0.0.0.0   
