@@ -10,7 +10,6 @@ import (
 	"demo-service/internal/service"
 	"demo-service/internal/transport/consumer"
 	"demo-service/internal/transport/rest"
-	"demo-service/internal/transport/rest/handler/order"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -53,7 +52,7 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 	closer.add(cache.Close, "cache closed")
 
 	service := service.NewService(db, cache, serviceConfig, logger)
-	Orderhandler := order.NewOrderHandler(service)
+	Orderhandler := rest.NewOrderHandler(service)
 	mux := rest.NewOrderRouter(Orderhandler)
 
 	brokerConf := consumer.Config{
@@ -93,23 +92,6 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 }
 
 func (a *App) Run() error {
-	// chSignal := make(chan error)
-	// wg := sync.WaitGroup{}
-	// wg.Add(1)
-	// go func() {
-	// 	defer wg.Done()
-	// 	a.logger.Info("Starting server on", "addr", a.server.Addr)
-	// 	chSignal <- a.server.ListenAndServe()
-	// }()
-
-	// wg.Add(1)
-	// go func() {
-	// 	defer wg.Done()
-	// 	chSignal <- a.broker.Close()
-	// }()
-
-	// wg.Wait()
-	// return nil
 	a.broker.Start()
 	a.logger.Info("Starting server on", "addr", a.server.Addr)
 	return a.server.ListenAndServe()
