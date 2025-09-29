@@ -53,7 +53,9 @@ func NewKafka(cnf Config, handler MessageHandler) (*Kafka, error) {
 		handler:  handler,
 	}
 
-	broker.subsribe(cnf.Topic)
-
+	err = broker.subsribe(cnf.Topic)
+	if err != nil {
+		return nil, err
+	}
 	return &broker, nil
 }

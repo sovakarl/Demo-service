@@ -5,13 +5,14 @@ import (
 	"demo-service/internal/models"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 func (k *Kafka) Start() error {
 	if k.runing {
-		return errors.New("TODO")
+		return errors.New("kafka is runing")
 	}
 	defer func() {
 		k.runing = true
@@ -40,6 +41,7 @@ func (k *Kafka) kafkaWork() error {
 	}
 	switch e := ev.(type) {
 	case *kafka.Message:
+		fmt.Println("kafka get msg")
 		if k.handler != nil {
 			order, err := unmarshal(e.Value)
 			if err != nil {
@@ -72,7 +74,7 @@ func (k *Kafka) Close() error {
 	}()
 
 	if !k.runing {
-		return errors.New("TODO")
+		return errors.New("kafka is closed")
 	}
 	k.cancelKafkaContext()
 	k.wg.Wait()

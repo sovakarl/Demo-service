@@ -96,6 +96,14 @@ func (s *OrderService) GetOrder(ctx context.Context, uid string) (*models.Order,
 }
 
 func (s *OrderService) SaveOrder(ctx context.Context, order *models.Order) error {
+	defer func(start time.Time) {
+		duration := time.Since(start)
+		s.logger.Debug("GetOrder completed ",
+			"order_uid", order.GetUid(),
+			"duration_ms", duration.Milliseconds(),
+		)
+	}(time.Now())
+	
 	ctx, done := context.WithTimeout(ctx, time.Minute)
 	defer done()
 

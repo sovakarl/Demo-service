@@ -32,7 +32,7 @@ VALUES (
 INSERT INTO payments (id, transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee)
 VALUES (
     1,
-    'b563feb7b2b84b6test',
+    'test',
     '',
     'USD',
     'wbpay',
@@ -49,7 +49,7 @@ INSERT INTO orders (
     order_uid, track_number, entry, delivery_id, payment_id, locale,
     internal_signature, customer_id, delivery_service, shardkey, sm_id, off_shard
 ) VALUES (
-    'b563feb7b2b84b6test',
+    'test',
     'WBILMTESTTRACK',
     'WBIL',
     1,
@@ -64,7 +64,7 @@ INSERT INTO orders (
 );
 
 -- Связь: заказ 1 → товар 1
-INSERT INTO order_items (order_uid, item_id) VALUES ('b563feb7b2b84b6test', 1);
+INSERT INTO order_items (order_uid, item_id) VALUES ('test', 1);
 
 -- Товары 2, 3, 4
 INSERT INTO items (id, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
