@@ -33,7 +33,7 @@ type Consumer struct {
 	Topic   string `mapstructure:"KAFKA_TOPIC"`
 	Host    string `mapstructure:"KAFKA_HOST"`
 	Port    uint16 `mapstructure:"KAFKA_PORT"`
-	GroupID string `mapstructure:"KAFKA_GroupID"`
+	GroupID string `mapstructure:"KAFKA_GROUP_ID"`
 }
 
 func Load() (*Config, error) {
