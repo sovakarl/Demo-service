@@ -25,4 +25,4 @@ shell:
 	docker exec -it ${container_name} bash
 
 app:
-	go run /cmd/main.go
+	go run ./cmd/main.go
