@@ -54,6 +54,9 @@ services:
       
       APP_HOST: 0.0.0.0   
       APP_PORT: 8080
+
+      KAFKA_TOPIC: order
+      KAFKA_GROUP_ID: order-processor-v1
     ports:
       - "8081:8080"
     env_file:
