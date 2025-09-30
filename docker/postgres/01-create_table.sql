@@ -1,7 +1,7 @@
 
 --delivery--
 CREATE TABLE delivery(
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     phone VARCHAR(100),
     zip VARCHAR(100),
@@ -14,7 +14,7 @@ CREATE TABLE delivery(
 
 --payment--
 CREATE TABLE payments(
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     transaction VARCHAR(100) NOT NULL,
     request_id VARCHAR(50) NOT NULL,
     currency VARCHAR(10) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE payments(
 
 --ITEMS--
 CREATE TABLE items(
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     chrt_id BIGINT  NOT NULL ,
     track_number VARCHAR(100) NOT NULL,
     price INT NOT NULL,

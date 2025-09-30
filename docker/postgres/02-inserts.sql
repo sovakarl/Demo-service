@@ -1,128 +1,128 @@
--- Товар 1
-INSERT INTO items (id, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
-VALUES (
-    1,
-    1000000,
-    'WBILMTESTTRACK',
-    453,
-    'ab4219087a764ae0btest',
-    'Mascaras',
-    30,
-    '0',
-    317,
-    2389234,
-    'Vivienne Sabo',
-    202
-);
+-- -- Товар 1
+-- INSERT INTO items (id, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
+-- VALUES (
+--     1,
+--     1000000,
+--     'WBILMTESTTRACK',
+--     453,
+--     'ab4219087a764ae0btest',
+--     'Mascaras',
+--     30,
+--     '0',
+--     317,
+--     2389234,
+--     'Vivienne Sabo',
+--     202
+-- );
 
--- Доставка 1
-INSERT INTO delivery (id, name, phone, zip, city, address, region, email)
-VALUES (
-    1,
-    'Test Testov',
-    '+9720000000',
-    '2639809',
-    'Kiryat Mozkin',
-    'Ploshad Mira 15',
-    'Kraiot',
-    'test@gmail.com'
-);
+-- -- Доставка 1
+-- INSERT INTO delivery (id, name, phone, zip, city, address, region, email)
+-- VALUES (
+--     1,
+--     'Test Testov',
+--     '+9720000000',
+--     '2639809',
+--     'Kiryat Mozkin',
+--     'Ploshad Mira 15',
+--     'Kraiot',
+--     'test@gmail.com'
+-- );
 
--- Оплата 1
-INSERT INTO payments (id, transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee)
-VALUES (
-    1,
-    'test',
-    '',
-    'USD',
-    'wbpay',
-    1817,
-    1637937212,
-    'alpha',
-    1500,
-    317,
-    0
-);
+-- -- Оплата 1
+-- INSERT INTO payments (id, transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee)
+-- VALUES (
+--     1,
+--     'test',
+--     '',
+--     'USD',
+--     'wbpay',
+--     1817,
+--     1637937212,
+--     'alpha',
+--     1500,
+--     317,
+--     0
+-- );
 
--- Заказ 1
-INSERT INTO orders (
-    order_uid, track_number, entry, delivery_id, payment_id, locale,
-    internal_signature, customer_id, delivery_service, shardkey, sm_id, off_shard
-) VALUES (
-    'test',
-    'WBILMTESTTRACK',
-    'WBIL',
-    1,
-    1,
-    'en',
-    '',
-    'test',
-    'meest',
-    '9',
-    99,
-    'off_shard'
-);
+-- -- Заказ 1
+-- INSERT INTO orders (
+--     order_uid, track_number, entry, delivery_id, payment_id, locale,
+--     internal_signature, customer_id, delivery_service, shardkey, sm_id, off_shard
+-- ) VALUES (
+--     'test',
+--     'WBILMTESTTRACK',
+--     'WBIL',
+--     1,
+--     1,
+--     'en',
+--     '',
+--     'test',
+--     'meest',
+--     '9',
+--     99,
+--     'off_shard'
+-- );
 
--- Связь: заказ 1 → товар 1
-INSERT INTO order_items (order_uid, item_id) VALUES ('test', 1);
+-- -- Связь: заказ 1 → товар 1
+-- INSERT INTO order_items (order_uid, item_id) VALUES ('test', 1);
 
--- Товары 2, 3, 4
-INSERT INTO items (id, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
-VALUES
-    (2, 2000000, 'WBILMTESTTRACK2', 890, 'rid789012', 'Lipstick Red', 15, '1', 756, 5678901, 'Maybelline', 202),
-    (3, 3000000, 'WBILMTESTTRACK3', 1200, 'rid345678', 'Eyeshadow Palette', 20, '2', 960, 6789012, 'Urban Decay', 202),
-    (4, 4000000, 'WBILMTESTTRACK4', 299, 'rid901234', 'Mascara Waterproof', 10, '0', 269, 7890123, 'L’Oreal', 202);
+-- -- Товары 2, 3, 4
+-- INSERT INTO items (id, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status)
+-- VALUES
+--     (2, 2000000, 'WBILMTESTTRACK2', 890, 'rid789012', 'Lipstick Red', 15, '1', 756, 5678901, 'Maybelline', 202),
+--     (3, 3000000, 'WBILMTESTTRACK3', 1200, 'rid345678', 'Eyeshadow Palette', 20, '2', 960, 6789012, 'Urban Decay', 202),
+--     (4, 4000000, 'WBILMTESTTRACK4', 299, 'rid901234', 'Mascara Waterproof', 10, '0', 269, 7890123, 'L’Oreal', 202);
 
--- Доставка 2
-INSERT INTO delivery (id, name, phone, zip, city, address, region, email)
-VALUES (
-    2,
-    'Anna Ivanova',
-    '+79161234567',
-    '125009',
-    'Moscow',
-    'Tverskaya 10',
-    'Moscow',
-    'anna@example.com'
-);
+-- -- Доставка 2
+-- INSERT INTO delivery (id, name, phone, zip, city, address, region, email)
+-- VALUES (
+--     2,
+--     'Anna Ivanova',
+--     '+79161234567',
+--     '125009',
+--     'Moscow',
+--     'Tverskaya 10',
+--     'Moscow',
+--     'anna@example.com'
+-- );
 
--- Оплата 2
-INSERT INTO payments (id, transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee)
-VALUES (
-    2,
-    'order_789xyz',
-    'req_789',
-    'RUB',
-    'sberpay',
-    3500,
-    1712345678,
-    'sberbank',
-    300,
-    1985,
-    0
-);
+-- -- Оплата 2
+-- INSERT INTO payments (id, transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee)
+-- VALUES (
+--     2,
+--     'order_789xyz',
+--     'req_789',
+--     'RUB',
+--     'sberpay',
+--     3500,
+--     1712345678,
+--     'sberbank',
+--     300,
+--     1985,
+--     0
+-- );
 
--- Заказ 2
-INSERT INTO orders (
-    order_uid, track_number, entry, delivery_id, payment_id, locale,
-    internal_signature, customer_id, delivery_service, shardkey, sm_id, off_shard
-) VALUES (
-    'order_789xyz',
-    'WBILMTESTTRACK2',
-    'WBIL',
-    2,
-    2,
-    'ru',
-    'sig_789xyz',
-    'user_789',
-    'cdek',
-    'shard_2',
-    88,
-    'off_shard_2'
-);
+-- -- Заказ 2
+-- INSERT INTO orders (
+--     order_uid, track_number, entry, delivery_id, payment_id, locale,
+--     internal_signature, customer_id, delivery_service, shardkey, sm_id, off_shard
+-- ) VALUES (
+--     'order_789xyz',
+--     'WBILMTESTTRACK2',
+--     'WBIL',
+--     2,
+--     2,
+--     'ru',
+--     'sig_789xyz',
+--     'user_789',
+--     'cdek',
+--     'shard_2',
+--     88,
+--     'off_shard_2'
+-- );
 
--- Связи: заказ 2 → товары 2, 3, 4
-INSERT INTO order_items (order_uid, item_id) VALUES
-    ('order_789xyz', 2),
-    ('order_789xyz', 3),
-    ('order_789xyz', 4);
+-- -- Связи: заказ 2 → товары 2, 3, 4
+-- INSERT INTO order_items (order_uid, item_id) VALUES
+--     ('order_789xyz', 2),
+--     ('order_789xyz', 3),
+--     ('order_789xyz', 4);

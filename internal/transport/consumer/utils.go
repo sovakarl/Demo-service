@@ -5,7 +5,6 @@ import (
 	"demo-service/internal/models"
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
@@ -41,7 +40,6 @@ func (k *Kafka) kafkaWork() error {
 	}
 	switch e := ev.(type) {
 	case *kafka.Message:
-		fmt.Println("kafka get msg")
 		if k.handler != nil {
 			order, err := unmarshal(e.Value)
 			if err != nil {

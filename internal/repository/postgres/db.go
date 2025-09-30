@@ -58,5 +58,6 @@ func NewConnect(cnf Config, logger *slog.Logger) (*Db, error) {
 		connPool: pool,
 		log:      logger.With("component", "DB"),
 	}
+	
 	return newDb, nil
 }

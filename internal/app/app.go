@@ -35,12 +35,12 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 	}
 	closer := newCloser(logger)
 
-	logger.Info("connect to DataBase...")
+	logger.Info("connect to DataBase")
 	db, err := postgres.NewConnect(dbConfig, logger)
 	if err != nil {
 		return nil, err
 	}
-
+	logger.Info("connect to DataBase is sucess")
 	closer.add(db.Close, "databases closed")
 
 	//Конфиг для сервиса
@@ -59,6 +59,7 @@ func NewApp(cnf *config.Config, logger *slog.Logger) (*App, error) {
 		Host:    cnf.Consumer.Host,
 		Port:    cnf.Consumer.Port,
 		GroupID: cnf.Consumer.GroupID,
+		Topic:   cnf.Consumer.Topic,
 	}
 	broker, err := consumer.NewKafka(brokerConf, service.SaveOrder)
 	if err != nil {

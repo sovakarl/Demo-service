@@ -33,7 +33,7 @@ type Consumer struct {
 	Topic   string `mapstructure:"KAFKA_TOPIC"`
 	Host    string `mapstructure:"KAFKA_HOST"`
 	Port    uint16 `mapstructure:"KAFKA_PORT"`
-	GroupID string `mapstructure:"KAFKA_GroupID"`
+	GroupID string `mapstructure:"KAFKA_GROUP_ID"`
 }
 
 func Load() (*Config, error) {
@@ -53,7 +53,7 @@ func Load() (*Config, error) {
 	viper.BindEnv("KAFKA_TOPIC")
 	viper.BindEnv("KAFKA_HOST")
 	viper.BindEnv("KAFKA_PORT")
-	viper.BindEnv("KAFKA_GroupID")
+	viper.BindEnv("KAFKA_GROUP_ID")
 
 	viper.BindEnv("APP_HOST")
 	viper.BindEnv("APP_PORT")
