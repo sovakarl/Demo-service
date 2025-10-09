@@ -13,7 +13,7 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-// Генерация случайного заказа на основе ваших моделей
+
 func generateRandomOrder(uid string) models.Order {
 	now := time.Now().UTC()
 	trackNumber := "WBILMTESTTRACK-" + randomString(8)
@@ -45,7 +45,7 @@ func generateRandomOrder(uid string) models.Order {
 			Currency:     "USD",
 			Provider:     "wbpay",
 			Amount:       rand.Intn(5000) + 1000,
-			PaymentDT:    int(now.Unix()), // ← int, как в вашей модели
+			PaymentDT:    int(now.Unix()), 
 			Bank:         "alpha",
 			DeliveryCost: 1500,
 			GoodsTotal:   rand.Intn(1000) + 100,
@@ -96,7 +96,7 @@ func main() {
 	})
 
 	defer writer.Close()
-	log.Println("🚀 Продюсер запущен. Отправка в топик 'order'...")
+	log.Println("Продюсер запущен. Отправка в топик 'order'...")
 
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -108,7 +108,7 @@ func main() {
 		// Сериализуем в JSON
 		jsonData, err := json.Marshal(order)
 		if err != nil {
-			log.Printf("❌ Ошибка marshal: %v", err)
+			log.Printf("Ошибка marshal: %v", err)
 			continue
 		}
 
@@ -118,9 +118,9 @@ func main() {
 			Value: jsonData,
 		})
 		if err != nil {
-			log.Printf("❌ Ошибка Kafka: %v", err)
+			log.Printf("Ошибка Kafka: %v", err)
 		} else {
-			log.Printf("✅ Отправлен заказ: %s", order.OrderUID)
+			log.Printf("Отправлен заказ: %s", order.OrderUID)
 			UID++
 		}
 
